@@ -30,6 +30,7 @@ archive/
 # Personal maps (contain real project data)
 index.html
 index-v2.html
+!index-public.html
 
 # Build outputs
 dist/
