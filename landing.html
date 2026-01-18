@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIOS Map - Visualize Your Project Ecosystem</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: radial-gradient(ellipse at top, #0f1419 0%, #050508 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 40px 20px;
+        }
+
+        #preview-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 900px;
+        }
+
+        h1 {
+            font-size: 4em;
+            font-weight: 700;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .tagline {
+            font-size: 1.5em;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+            font-weight: 300;
+        }
+
+        .description {
+            font-size: 1.1em;
+            color: #94a3b8;
+            margin-bottom: 48px;
+            line-height: 1.8;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 40px;
+            font-size: 1.1em;
+            font-weight: 700;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .features {
+            padding: 100px 20px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5em;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(102, 126, 234, 0.15);
+        }
+
+        .feature-visual {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            background: radial-gradient(ellipse at center, rgba(102, 126, 234, 0.05) 0%, rgba(5, 5, 8, 0.8) 100%);
+        }
+
+        .feature-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .feature-content {
+            padding: 30px;
+        }
+
+        .feature-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #fff;
+        }
+
+        .feature-description {
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        .coming-soon-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            font-size: 0.7em;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-left: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .showcase-section {
+            padding: 100px 20px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .showcase-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .showcase-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .showcase-item:hover {
+            transform: translateY(-8px);
+            border-color: rgba(102, 126, 234, 0.4);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.2);
+        }
+
+        .showcase-preview {
+            width: 100%;
+            height: 280px;
+            background: radial-gradient(ellipse at center, rgba(102, 126, 234, 0.05) 0%, rgba(5, 5, 8, 0.8) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .showcase-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%); }
+            100% { transform: translateX(100%) translateY(100%); }
+        }
+
+        .showcase-content {
+            padding: 30px;
+        }
+
+        .showcase-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .showcase-description {
+            color: #94a3b8;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .tagline {
+                font-size: 1.2em;
+            }
+
+            .description {
+                font-size: 1em;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <canvas id="preview-canvas"></canvas>
+        <div class="hero-content">
+            <h1>MIOS Map</h1>
+            <p class="tagline">Visualize Your Entire Project Ecosystem</p>
+            <p class="description">
+                Automatically map your GitHub repositories into an interactive 3D visualization.<br>
+                Read-only access to your repos. We only scan tech stack data—no modifications.
+            </p>
+            <div class="cta-buttons">
+                <a href="https://mios-worker.simeon-garratt.workers.dev/api/auth/github" class="btn btn-primary">Connect GitHub →</a>
+                <a href="demo.html" class="btn btn-secondary">View Demo</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="features" id="features">
+        <div class="features-container">
+            <h2 class="section-title">Powerful Visualization</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-visual">
+                        <canvas class="feature-canvas" data-feature="3d"></canvas>
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Interactive 3D View</h3>
+                        <p class="feature-description">
+                            Explore your projects in an immersive 3D space. Rotate, zoom, and navigate through your entire ecosystem with smooth controls.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-visual">
+                        <canvas class="feature-canvas" data-feature="connections"></canvas>
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Smart Connections</h3>
+                        <p class="feature-description">
+                            See how your projects relate to each other. Shared technologies, dependencies, and integrations are automatically mapped.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-visual">
+                        <canvas class="feature-canvas" data-feature="layouts"></canvas>
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Multiple Layouts</h3>
+                        <p class="feature-description">
+                            Switch between Force, Tree, Radial, and 3D layouts. Each view offers unique insights into your project structure.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-visual">
+                        <canvas class="feature-canvas" data-feature="realtime"></canvas>
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Real-time Updates</h3>
+                        <p class="feature-description">
+                            Load new data on the fly. Import JSON from GitHub scanning or manual exports to keep your map current.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-visual">
+                        <canvas class="feature-canvas" data-feature="insights"></canvas>
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Detailed Insights</h3>
+                        <p class="feature-description">
+                            Click any node to see full details: tech stack, APIs, databases, languages, frameworks, and connections.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-visual">
+                        <canvas class="feature-canvas" data-feature="filtering"></canvas>
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Smart Filtering</h3>
+                        <p class="feature-description">
+                            Focus on what matters. Filter by platforms, engines, APIs, models, languages, frameworks, or revenue opportunities.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="showcase-section">
+        <div class="showcase-container">
+            <h2 class="section-title">What's Possible</h2>
+            <div class="showcase-grid">
+                <div class="showcase-item">
+                    <div class="showcase-preview">
+                        <canvas class="showcase-canvas" data-viz="network"></canvas>
+                    </div>
+                    <div class="showcase-content">
+                        <h3 class="showcase-title">Live Repository Visualization</h3>
+                        <p class="showcase-description">
+                            Connect your GitHub and instantly see all your projects mapped in 3D. Watch as the system automatically detects languages, frameworks, APIs, and databases across your entire portfolio.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="showcase-item">
+                    <div class="showcase-preview">
+                        <canvas class="showcase-canvas" data-viz="tree"></canvas>
+                    </div>
+                    <div class="showcase-content">
+                        <h3 class="showcase-title">
+                            Dependency Analysis
+                            <span class="coming-soon-badge">COMING SOON</span>
+                        </h3>
+                        <p class="showcase-description">
+                            Deep dependency scanning across all projects. Identify shared libraries, version conflicts, and security vulnerabilities. See which projects would be affected by an upgrade.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="showcase-item">
+                    <div class="showcase-preview">
+                        <canvas class="showcase-canvas" data-viz="clusters"></canvas>
+                    </div>
+                    <div class="showcase-content">
+                        <h3 class="showcase-title">
+                            Tech Stack Analytics
+                            <span class="coming-soon-badge">COMING SOON</span>
+                        </h3>
+                        <p class="showcase-description">
+                            Get insights into your technology landscape. Track adoption patterns, identify redundant tools, and optimize your tech stack based on actual usage across all projects.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="showcase-item">
+                    <div class="showcase-preview">
+                        <canvas class="showcase-canvas" data-viz="radial"></canvas>
+                    </div>
+                    <div class="showcase-content">
+                        <h3 class="showcase-title">
+                            Team Collaboration Maps
+                            <span class="coming-soon-badge">COMING SOON</span>
+                        </h3>
+                        <p class="showcase-description">
+                            Share your ecosystem with your team. Collaborate on architecture decisions, plan migrations, and onboard new developers with interactive visual documentation.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="showcase-item">
+                    <div class="showcase-preview">
+                        <canvas class="showcase-canvas" data-viz="heatmap"></canvas>
+                    </div>
+                    <div class="showcase-content">
+                        <h3 class="showcase-title">
+                            Security Vulnerability Mapping
+                            <span class="coming-soon-badge">COMING SOON</span>
+                        </h3>
+                        <p class="showcase-description">
+                            Visualize security risks across your entire codebase. See which projects are vulnerable, track CVEs, and prioritize fixes based on project criticality and blast radius.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="showcase-item">
+                    <div class="showcase-preview">
+                        <canvas class="showcase-canvas" data-viz="pipeline"></canvas>
+                    </div>
+                    <div class="showcase-content">
+                        <h3 class="showcase-title">
+                            CI/CD Pipeline Integration
+                            <span class="coming-soon-badge">COMING SOON</span>
+                        </h3>
+                        <p class="showcase-description">
+                            Integrate with your deployment pipelines. Watch your map update in real-time as code ships, track deployment dependencies, and visualize service health across environments.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple 3D preview with animated spheres
+        const canvas = document.getElementById('preview-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        
+        camera.position.z = 400;
+
+        // Ambient light
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        // Point lights
+        const light1 = new THREE.PointLight(0x667eea, 1, 500);
+        light1.position.set(100, 100, 100);
+        scene.add(light1);
+
+        const light2 = new THREE.PointLight(0x764ba2, 0.8, 500);
+        light2.position.set(-100, -100, 100);
+        scene.add(light2);
+
+        // Create galaxy-like node network
+        const nodes = [];
+        const lines = [];
+        const particles = [];
+        const colors = [0x667eea, 0x10b981, 0xf59e0b, 0xef4444, 0x8b5cf6, 0x06b6d4, 0xec4899, 0x14b8a6];
+        
+        // Create 50 nodes in spiral galaxy formation
+        for (let i = 0; i < 50; i++) {
+            const geometry = new THREE.SphereGeometry(4 + Math.random() * 4, 32, 32);
+            const color = colors[i % colors.length];
+            const material = new THREE.MeshStandardMaterial({
+                color: color,
+                emissive: color,
+                emissiveIntensity: 0.9,
+                metalness: 0.5,
+                roughness: 0.3,
+                transparent: true,
+                opacity: 0.85
+            });
+            
+            const mesh = new THREE.Mesh(geometry, material);
+            
+            // Spiral galaxy formation with multiple arms
+            const armIndex = i % 3; // 3 spiral arms
+            const t = i / 50 * Math.PI * 4; // Spiral parameter
+            const radius = 100 + (i / 50) * 200;
+            const armAngle = (armIndex * Math.PI * 2 / 3) + t;
+            
+            mesh.position.x = Math.cos(armAngle) * radius + (Math.random() - 0.5) * 40;
+            mesh.position.y = (Math.random() - 0.5) * 150 + Math.sin(t) * 50;
+            mesh.position.z = Math.sin(armAngle) * radius + (Math.random() - 0.5) * 40;
+            
+            // Store original position for orbital motion
+            mesh.userData.angle = armAngle;
+            mesh.userData.radius = radius;
+            mesh.userData.height = mesh.position.y;
+            mesh.userData.armIndex = armIndex;
+            mesh.userData.rotationSpeed = 0.0005 + Math.random() * 0.0005;
+            
+            scene.add(mesh);
+            nodes.push(mesh);
+        }
+        
+        // Add background star particles for depth
+        const starGeometry = new THREE.BufferGeometry();
+        const starPositions = [];
+        for (let i = 0; i < 500; i++) {
+            starPositions.push(
+                (Math.random() - 0.5) * 1000,
+                (Math.random() - 0.5) * 1000,
+                (Math.random() - 0.5) * 1000
+            );
+        }
+        starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
+        const starMaterial = new THREE.PointsMaterial({
+            color: 0x667eea,
+            size: 2,
+            transparent: true,
+            opacity: 0.4
+        });
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        scene.add(stars);
+        
+        // Add connection lines between nearby nodes (network effect)
+        const energyPulses = [];
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                const distance = nodes[i].position.distanceTo(nodes[j].position);
+                if (distance < 120) {
+                    const points = [nodes[i].position, nodes[j].position];
+                    const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+                    const lineMaterial = new THREE.LineBasicMaterial({
+                        color: 0x667eea,
+                        transparent: true,
+                        opacity: 0.5,
+                        linewidth: 2
+                    });
+                    const line = new THREE.Line(lineGeometry, lineMaterial);
+                    scene.add(line);
+                    lines.push({ 
+                        line, 
+                        start: nodes[i], 
+                        end: nodes[j],
+                        pulseOffset: Math.random() * Math.PI * 2 // Random phase for pulse variety
+                    });
+                    
+                    // Create energy pulse particle for this connection (randomly)
+                    if (Math.random() > 0.7) { // 30% of lines get pulses
+                        const pulseGeometry = new THREE.SphereGeometry(2, 16, 16);
+                        const pulseMaterial = new THREE.MeshBasicMaterial({
+                            color: 0x00ffcc,
+                            transparent: true,
+                            opacity: 0.9
+                        });
+                        const pulse = new THREE.Mesh(pulseGeometry, pulseMaterial);
+                        pulse.userData.progress = Math.random(); // Random start position
+                        pulse.userData.speed = 0.003 + Math.random() * 0.003; // Varying speeds
+                        pulse.userData.lineIndex = lines.length - 1;
+                        scene.add(pulse);
+                        energyPulses.push(pulse);
+                    }
+                }
+            }
+        }
+
+        // Animation loop with galaxy rotation
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const time = Date.now() * 0.0001;
+            
+            // Rotate entire galaxy slowly
+            nodes.forEach((node, i) => {
+                // Individual node rotation
+                node.rotation.y += 0.005;
+                node.rotation.x += 0.003;
+                
+                // Orbital rotation around center (galaxy spin) - SMOOTH
+                node.userData.angle += node.userData.rotationSpeed;
+                node.position.x = Math.cos(node.userData.angle) * node.userData.radius;
+                node.position.z = Math.sin(node.userData.angle) * node.userData.radius;
+                node.position.y = node.userData.height + Math.sin(time * 1.5 + i * 0.3) * 8; // Gentle wave
+                
+                // Pulse emissive intensity
+                const pulse = Math.sin(time * 2 + i * 0.2) * 0.3 + 0.7;
+                node.material.emissiveIntensity = pulse;
+            });
+            
+            // Rotate star field
+            stars.rotation.y += 0.0001;
+            stars.rotation.x += 0.00005;
+            
+            // Update connection lines
+            lines.forEach((line, idx) => {
+                const points = [line.start.position, line.end.position];
+                line.line.geometry.setFromPoints(points);
+                
+                // Subtle pulse with individual offsets
+                const pulse = Math.sin(time * 3 + line.pulseOffset) * 0.2 + 0.5;
+                line.line.material.opacity = pulse;
+            });
+            
+            // Animate energy pulses along connections
+            energyPulses.forEach(pulse => {
+                const lineData = lines[pulse.userData.lineIndex];
+                if (!lineData) return;
+                
+                // Move pulse along line
+                pulse.userData.progress += pulse.userData.speed;
+                if (pulse.userData.progress > 1) {
+                    pulse.userData.progress = 0; // Loop back
+                }
+                
+                // Interpolate position along line
+                const t = pulse.userData.progress;
+                pulse.position.lerpVectors(lineData.start.position, lineData.end.position, t);
+                
+                // Pulse scale and opacity for energy effect
+                const scalePhase = Math.sin(t * Math.PI); // Bigger in middle, smaller at ends
+                pulse.scale.set(scalePhase * 1.5, scalePhase * 1.5, scalePhase * 1.5);
+                pulse.material.opacity = scalePhase * 0.9;
+                
+                // Rotate pulse
+                pulse.rotation.x += 0.05;
+                pulse.rotation.y += 0.03;
+            });
+            
+            // Slow camera orbit
+            camera.position.x = Math.sin(time * 0.15) * 100;
+            camera.position.y = Math.cos(time * 0.1) * 80;
+            camera.lookAt(0, 0, 0);
+            
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Initialize showcase mini visualizations
+        document.querySelectorAll('.showcase-canvas').forEach(canvas => {
+            const vizType = canvas.dataset.viz;
+            const scene = new THREE.Scene();
+            const cam = new THREE.PerspectiveCamera(50, canvas.offsetWidth / canvas.offsetHeight, 1, 200);
+            const rend = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+            
+            rend.setSize(canvas.offsetWidth, canvas.offsetHeight);
+            rend.setPixelRatio(window.devicePixelRatio);
+            rend.setClearColor(0x000000, 0);
+            
+            cam.position.z = 80;
+            
+            const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambient);
+            
+            const light = new THREE.PointLight(0x667eea, 1, 150);
+            light.position.set(30, 30, 30);
+            scene.add(light);
+            
+            const vizNodes = [];
+            const vizLines = [];
+            const colors = [0x667eea, 0x10b981, 0xf59e0b, 0xef4444, 0x8b5cf6];
+            
+            // Create visualization based on type
+            if (vizType === 'network') {
+                // Network - connected nodes
+                for (let i = 0; i < 8; i++) {
+                    const geom = new THREE.SphereGeometry(2, 16, 16);
+                    const mat = new THREE.MeshStandardMaterial({
+                        color: colors[i % colors.length],
+                        emissive: colors[i % colors.length],
+                        emissiveIntensity: 0.6
+                    });
+                    const mesh = new THREE.Mesh(geom, mat);
+                    const angle = (i / 8) * Math.PI * 2;
+                    mesh.position.x = Math.cos(angle) * 25;
+                    mesh.position.y = Math.sin(angle) * 25;
+                    mesh.position.z = (Math.random() - 0.5) * 15;
+                    scene.add(mesh);
+                    vizNodes.push(mesh);
+                }
+            } else if (vizType === 'tree') {
+                // Tree - hierarchical
+                for (let i = 0; i < 12; i++) {
+                    const geom = new THREE.SphereGeometry(1.5, 16, 16);
+                    const mat = new THREE.MeshStandardMaterial({
+                        color: colors[Math.floor(i / 3) % colors.length],
+                        emissive: colors[Math.floor(i / 3) % colors.length],
+                        emissiveIntensity: 0.6
+                    });
+                    const mesh = new THREE.Mesh(geom, mat);
+                    const layer = Math.floor(i / 4);
+                    const idx = i % 4;
+                    mesh.position.x = (idx - 1.5) * 15;
+                    mesh.position.y = 25 - layer * 25;
+                    scene.add(mesh);
+                    vizNodes.push(mesh);
+                }
+            } else if (vizType === 'clusters') {
+                // Clusters - grouped
+                for (let i = 0; i < 15; i++) {
+                    const geom = new THREE.SphereGeometry(1.5, 16, 16);
+                    const cluster = Math.floor(i / 5);
+                    const mat = new THREE.MeshStandardMaterial({
+                        color: colors[cluster],
+                        emissive: colors[cluster],
+                        emissiveIntensity: 0.6
+                    });
+                    const mesh = new THREE.Mesh(geom, mat);
+                    const angle = (i % 5 / 5) * Math.PI * 2;
+                    const cx = (cluster - 1) * 25;
+                    mesh.position.x = cx + Math.cos(angle) * 10;
+                    mesh.position.y = Math.sin(angle) * 10;
+                    scene.add(mesh);
+                    vizNodes.push(mesh);
+                }
+            } else if (vizType === 'radial') {
+                // Radial - concentric circles
+                for (let i = 0; i < 16; i++) {
+                    const geom = new THREE.SphereGeometry(1.5, 16, 16);
+                    const ring = Math.floor(i / 4);
+                    const mat = new THREE.MeshStandardMaterial({
+                        color: colors[ring],
+                        emissive: colors[ring],
+                        emissiveIntensity: 0.6
+                    });
+                    const mesh = new THREE.Mesh(geom, mat);
+                    const angle = (i % 4 / 4) * Math.PI * 2;
+                    const radius = 10 + ring * 10;
+                    mesh.position.x = Math.cos(angle) * radius;
+                    mesh.position.y = Math.sin(angle) * radius;
+                    scene.add(mesh);
+                    vizNodes.push(mesh);
+                }
+            } else if (vizType === 'heatmap') {
+                // Heatmap - grid
+                for (let x = 0; x < 6; x++) {
+                    for (let y = 0; y < 4; y++) {
+                        const geom = new THREE.BoxGeometry(6, 6, 2);
+                        const intensity = Math.random();
+                        const col = intensity > 0.6 ? 0xef4444 : intensity > 0.3 ? 0xf59e0b : 0x10b981;
+                        const mat = new THREE.MeshStandardMaterial({
+                            color: col,
+                            emissive: col,
+                            emissiveIntensity: intensity * 0.8
+                        });
+                        const mesh = new THREE.Mesh(geom, mat);
+                        mesh.position.x = (x - 2.5) * 8;
+                        mesh.position.y = (y - 1.5) * 8;
+                        scene.add(mesh);
+                        vizNodes.push(mesh);
+                    }
+                }
+            } else if (vizType === 'pipeline') {
+                // Pipeline - linear flow
+                for (let i = 0; i < 6; i++) {
+                    const geom = new THREE.CylinderGeometry(3, 3, 8, 16);
+                    const mat = new THREE.MeshStandardMaterial({
+                        color: colors[i % colors.length],
+                        emissive: colors[i % colors.length],
+                        emissiveIntensity: 0.6
+                    });
+                    const mesh = new THREE.Mesh(geom, mat);
+                    mesh.rotation.z = Math.PI / 2;
+                    mesh.position.x = (i - 2.5) * 14;
+                    scene.add(mesh);
+                    vizNodes.push(mesh);
+                }
+            }
+            
+            // Animate
+            function animateViz() {
+                requestAnimationFrame(animateViz);
+                const t = Date.now() * 0.0003;
+                
+                vizNodes.forEach((node, i) => {
+                    node.rotation.y += 0.01;
+                    node.rotation.x += 0.005;
+                    const pulse = Math.sin(t * 2 + i * 0.3) * 0.2 + 0.6;
+                    if (node.material.emissiveIntensity !== undefined) {
+                        node.material.emissiveIntensity = pulse;
+                    }
+                });
+                
+                cam.position.x = Math.sin(t * 0.5) * 15;
+                cam.position.y = Math.cos(t * 0.3) * 10;
+                cam.lookAt(0, 0, 0);
+                
+                rend.render(scene, cam);
+            }
+            
+            animateViz();
+        });
+        
+        // Initialize feature card mini visualizations
+        document.querySelectorAll('.feature-canvas').forEach(canvas => {
+            const featureType = canvas.dataset.feature;
+            const scene = new THREE.Scene();
+            const cam = new THREE.PerspectiveCamera(50, canvas.offsetWidth / canvas.offsetHeight, 1, 150);
+            const rend = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+            
+            rend.setSize(canvas.offsetWidth, canvas.offsetHeight);
+            rend.setPixelRatio(window.devicePixelRatio);
+            rend.setClearColor(0x000000, 0);
+            
+            cam.position.z = 60;
+            
+            const ambient = new THREE.AmbientLight(0xffffff, 0.3);
+            scene.add(ambient);
+            
+            const light = new THREE.PointLight(0x667eea, 0.8, 120);
+            light.position.set(20, 20, 20);
+            scene.add(light);
+            
+            const meshes = [];
+            const colors = [0x667eea, 0x10b981, 0xf59e0b, 0xef4444, 0x8b5cf6, 0x06b6d4];
+            
+            if (featureType === '3d') {
+                // 3D cube with rotating spheres around it
+                for (let i = 0; i < 6; i++) {
+                    const geom = new THREE.SphereGeometry(2, 16, 16);
+                    const mat = new THREE.MeshStandardMaterial({
+                        color: colors[i],
+                        emissive: colors[i],
+                        emissiveIntensity: 0.5
+                    });
+                    const mesh = new THREE.Mesh(geom, mat);
+                    meshes.push(mesh);
+                    scene.add(mesh);
+                }
+            } else if (featureType === 'connections') {
+                // Connected web
+                for (let i = 0; i < 5; i++) {
+                    const geom = new THREE.SphereGeometry(2.5, 16, 16);
+                    const mat = new THREE.MeshStandardMaterial({
+                        color: 0x667eea,
+                        emissive: 0x667eea,
+                        emissiveIntensity: 0.5
+                    });
+                    const mesh = new THREE.Mesh(geom, mat);
+                    const angle = (i / 5) * Math.PI * 2;
+                    mesh.position.x = Math.cos(angle) * 18;
+                    mesh.position.y = Math.sin(angle) * 18;
+                    meshes.push(mesh);
+                    scene.add(mesh);
+                }
+                // Add lines
+                for (let i = 0; i < meshes.length; i++) {
+                    for (let j = i + 1; j < meshes.length; j++) {
+                        const points = [meshes[i].position, meshes[j].position];
+                        const geom = new THREE.BufferGeometry().setFromPoints(points);
+                        const mat = new THREE.LineBasicMaterial({ color: 0x667eea, transparent: true, opacity: 0.3 });
+                        const line = new THREE.Line(geom, mat);
+                        scene.add(line);
+                    }
+                }
+            } else if (featureType === 'layouts') {
+                // Multiple layout patterns
+                for (let i = 0; i < 9; i++) {
+                    const geom = new THREE.SphereGeometry(1.5, 16, 16);
+                    const mat = new THREE.MeshStandardMaterial({
+                        color: colors[Math.floor(i / 3)],
+                        emissive: colors[Math.floor(i / 3)],
+                        emissiveIntensity: 0.5
+                    });
+                    const mesh = new THREE.Mesh(geom, mat);
+                    const x = (i % 3 - 1) * 15;
+                    const y = (Math.floor(i / 3) - 1) * 15;
+                    mesh.position.set(x, y, 0);
+                    meshes.push(mesh);
+                    scene.add(mesh);
+                }
+            } else if (featureType === 'realtime') {
+                // Pulsing particles
+                for (let i = 0; i < 12; i++) {
+                    const geom = new THREE.SphereGeometry(1.5, 16, 16);
+                    const mat = new THREE.MeshStandardMaterial({
+                        color: 0x10b981,
+                        emissive: 0x10b981,
+                        emissiveIntensity: 0.8
+                    });
+                    const mesh = new THREE.Mesh(geom, mat);
+                    mesh.userData.phase = i * 0.5;
+                    meshes.push(mesh);
+                    scene.add(mesh);
+                }
+            } else if (featureType === 'insights') {
+                // Expanding info panels
+                for (let i = 0; i < 4; i++) {
+                    const geom = new THREE.BoxGeometry(8, 8, 1);
+                    const mat = new THREE.MeshStandardMaterial({
+                        color: colors[i],
+                        emissive: colors[i],
+                        emissiveIntensity: 0.4
+                    });
+                    const mesh = new THREE.Mesh(geom, mat);
+                    const angle = (i / 4) * Math.PI * 2;
+                    mesh.position.x = Math.cos(angle) * 15;
+                    mesh.position.y = Math.sin(angle) * 15;
+                    mesh.userData.angle = angle;
+                    meshes.push(mesh);
+                    scene.add(mesh);
+                }
+            } else if (featureType === 'filtering') {
+                // Funnel/filter shape
+                for (let i = 0; i < 15; i++) {
+                    const size = 2 - (i / 15);
+                    const geom = new THREE.SphereGeometry(size, 16, 16);
+                    const intensity = i / 15;
+                    const col = intensity > 0.7 ? 0x667eea : 0x94a3b8;
+                    const mat = new THREE.MeshStandardMaterial({
+                        color: col,
+                        emissive: col,
+                        emissiveIntensity: intensity * 0.6
+                    });
+                    const mesh = new THREE.Mesh(geom, mat);
+                    mesh.position.y = 20 - i * 3;
+                    mesh.position.x = (Math.random() - 0.5) * (15 - i);
+                    meshes.push(mesh);
+                    scene.add(mesh);
+                }
+            }
+            
+            // Animate
+            function animateFeature() {
+                requestAnimationFrame(animateFeature);
+                const t = Date.now() * 0.0003;
+                
+                if (featureType === '3d') {
+                    meshes.forEach((mesh, i) => {
+                        const angle = t + (i / meshes.length) * Math.PI * 2;
+                        mesh.position.x = Math.cos(angle) * 20;
+                        mesh.position.y = Math.sin(angle) * 20;
+                        mesh.position.z = Math.sin(t * 2 + i) * 10;
+                        mesh.rotation.y += 0.02;
+                    });
+                } else if (featureType === 'realtime') {
+                    meshes.forEach((mesh, i) => {
+                        const pulse = Math.sin(t * 3 + mesh.userData.phase) * 0.5 + 0.5;
+                        mesh.scale.set(pulse * 2, pulse * 2, pulse * 2);
+                        mesh.material.emissiveIntensity = pulse;
+                        const angle = (i / meshes.length) * Math.PI * 2;
+                        mesh.position.x = Math.cos(angle + t * 0.5) * 18;
+                        mesh.position.y = Math.sin(angle + t * 0.5) * 18;
+                    });
+                } else if (featureType === 'insights') {
+                    meshes.forEach((mesh, i) => {
+                        mesh.rotation.y = t * 2;
+                        mesh.rotation.z = Math.sin(t + i) * 0.3;
+                        const pulse = Math.sin(t * 2 + i * 0.5) * 0.3 + 0.5;
+                        mesh.material.emissiveIntensity = pulse;
+                    });
+                } else {
+                    meshes.forEach((mesh, i) => {
+                        mesh.rotation.y += 0.01;
+                        mesh.rotation.x += 0.005;
+                        const pulse = Math.sin(t * 2 + i * 0.2) * 0.2 + 0.4;
+                        if (mesh.material.emissiveIntensity !== undefined) {
+                            mesh.material.emissiveIntensity = pulse;
+                        }
+                    });
+                }
+                
+                cam.position.x = Math.sin(t * 0.3) * 10;
+                cam.position.y = Math.cos(t * 0.2) * 8;
+                cam.lookAt(0, 0, 0);
+                
+                rend.render(scene, cam);
+            }
+            
+            animateFeature();
+        });
+    </script>
+</body>
+</html>
