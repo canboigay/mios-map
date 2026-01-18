@@ -27,5 +27,9 @@ Thumbs.db
 # Archive
 archive/
 
+# Personal maps (contain real project data)
+index.html
+index-v2.html
+
 # Build outputs
 dist/

@@ -20,8 +20,9 @@ MIOS Map automatically scans your GitHub repositories and creates an interactive
 ### Frontend
 - **landing.html** - Marketing landing page with 3D preview
 - **demo.html** - Public demo with sample data
-- **index.html** - User's private map (requires GitHub auth)
-- **index-v2.html** - Enhanced version with data import
+- **index.html** - Template for user's private map (not in repo)
+
+Note: The actual index.html file is not included in the repository as it contains personal project data. Users generate their own version by connecting their GitHub account.
 
 ### Backend
 - **worker.js** - Cloudflare Worker handling:
