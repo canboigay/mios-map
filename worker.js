@@ -122,6 +122,45 @@ export default {
 };
 
 /**
+ * Shortens and cleans repository names for better visualization
+ * 
+ * @param {string} name - Repository name
+ * @returns {string} Shortened/cleaned name
+ */
+function shortenRepoName(name) {
+  // Remove common suffixes
+  let cleaned = name
+    .replace(/-main$/i, '')
+    .replace(/-master$/i, '')
+    .replace(/-v\d+$/i, '') // Remove version suffixes like -v2, -v3
+    .replace(/^the[-_]/i, ''); // Remove "the" prefix
+  
+  // If it's a portfolio/website pattern (name-portfolio, name-website, etc.)
+  if (cleaned.match(/^[a-z]+-[a-z]+-(portfolio|website|redesign|rebuild|clone)$/i)) {
+    return 'Website';
+  }
+  
+  // If it ends with common website suffixes
+  if (cleaned.match(/-(portfolio|website|landing|page|site|redesign|rebuild|clone)$/i)) {
+    return 'Website';
+  }
+  
+  // Convert kebab-case/snake_case to title case and limit length
+  cleaned = cleaned
+    .replace(/[-_]/g, ' ')
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+  
+  // Truncate if too long (keep first 20 chars)
+  if (cleaned.length > 20) {
+    cleaned = cleaned.substring(0, 20).trim();
+  }
+  
+  return cleaned;
+}
+
+/**
  * Scans a single GitHub repository to extract tech stack information
  * 
  * @param {Object} repo - GitHub repository object
@@ -151,7 +190,7 @@ async function scanRepo(repo, token) {
   
   return {
     id: repo.name.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
-    name: repo.name,
+    name: shortenRepoName(repo.name),
     description: repo.description || '',
     url: repo.html_url,
     languages: languages.map(l => l.toLowerCase()),

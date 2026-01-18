@@ -2,89 +2,89 @@
   "nodes": [
     {
       "id": "ecommerce-platform",
-      "name": "E-Commerce",
+      "name": "E-Commerce Platform",
       "type": "platform",
       "category": "Production",
       "description": "Main retail platform"
     },
     {
       "id": "mobile-app",
-      "name": "Mobile",
+      "name": "Mobile App",
       "type": "platform",
       "category": "Production",
       "description": "iOS and Android app"
     },
     {
       "id": "admin-dashboard",
-      "name": "Admin",
+      "name": "Admin Dashboard",
       "type": "platform",
       "category": "Internal",
       "description": "Internal management tool"
     },
     {
       "id": "analytics-engine",
-      "name": "Analytics",
+      "name": "Analytics Engine",
       "type": "platform",
       "category": "Production",
       "description": "Real-time analytics"
     },
     {
       "id": "payment-service",
-      "name": "Payments",
+      "name": "Payment Service",
       "type": "platform",
       "category": "Production",
       "description": "Payment processing"
     },
     {
       "id": "user-portal",
-      "name": "Portal",
+      "name": "User Portal",
       "type": "platform",
       "category": "Production",
       "description": "Customer account management"
     },
     {
       "id": "api-gateway",
-      "name": "Gateway",
+      "name": "API Gateway",
       "type": "platform",
       "category": "Infrastructure",
       "description": "Central API gateway"
     },
     {
       "id": "notification-service",
-      "name": "Notify",
+      "name": "Notification Service",
       "type": "platform",
       "category": "Production",
       "description": "Email and push notifications"
     },
     {
       "id": "search-engine",
-      "name": "Search",
+      "name": "Search Engine",
       "type": "platform",
       "category": "Production",
       "description": "Product search"
     },
     {
       "id": "inventory-system",
-      "name": "Inventory",
+      "name": "Inventory System",
       "type": "platform",
       "category": "Production",
       "description": "Stock management"
     },
     {
       "id": "recommendation-engine",
-      "name": "Recommend",
+      "name": "Recommendation Engine",
       "type": "engine",
       "description": "ML-powered recommendations"
     },
     {
       "id": "fraud-detection",
-      "name": "Fraud Check",
+      "name": "Fraud Detection",
       "type": "engine",
       "description": "Real-time fraud prevention"
     },
     {
       "id": "image-processor",
-      "name": "Images",
+      "name": "Image Processor",
       "type": "engine",
       "description": "Product image optimization"
     },
@@ -201,21 +201,21 @@
     },
     {
       "id": "enterprise-tier",
-      "name": "Enterprise",
+      "name": "Enterprise Tier",
       "type": "opportunity",
       "revenue": "$500k ARR",
       "description": "B2B enterprise package"
     },
     {
       "id": "api-marketplace",
-      "name": "API Market",
+      "name": "API Marketplace",
       "type": "opportunity",
       "revenue": "$200k ARR",
       "description": "Developer API access"
     },
     {
       "id": "white-label",
-      "name": "White Label",
+      "name": "White Label Solution",
       "type": "opportunity",
       "revenue": "$300k ARR",
       "description": "Customizable platform"
